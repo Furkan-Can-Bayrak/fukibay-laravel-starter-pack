@@ -1,0 +1,24 @@
+// stubs/service.stub
+
+<?php
+
+namespace {{ namespace }};
+
+use {{ rootNamespace }}Services\BaseService;
+use {{ repositoryInterfaceNamespace }};
+{{ useProxyTrait }}
+
+/**
+ * @property-read {{ repositoryInterface }} $repository
+ */
+class {{ class }} extends BaseService
+{
+    {{ proxyTrait }}
+    /**
+     * @param {{ repositoryInterface }} ${{ repositoryVariable }}
+     */
+    public function __construct({{ repositoryInterface }} ${{ repositoryVariable }})
+    {
+        parent::__construct(${{ repositoryVariable }});
+    }
+}

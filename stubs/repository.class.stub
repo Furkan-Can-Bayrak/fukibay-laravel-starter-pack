@@ -1,0 +1,19 @@
+<?php
+
+namespace {{ namespace }};
+
+use {{ rootNamespace }}Repositories\Contracts\{{ interface }};
+use {{ modelNamespace }};
+{{ useSoftDeletesInterface }}
+
+class {{ class }} extends BaseRepository implements {{ interface }}{{ classImplements }}
+{
+{{ useAndImplementHandlesSoftDeletes }}
+    /**
+     * @param {{ modelName }} $model
+     */
+    public function __construct({{ modelName }} $model)
+    {
+        parent::__construct($model);
+    }
+}

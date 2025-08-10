@@ -1,0 +1,11 @@
+<?php
+
+namespace {{ namespace }};
+
+use {{ rootNamespace }}Repositories\Contracts\BaseRepositoryInterface;
+{{ useSoftDeletesInterface }}
+
+interface {{ class }} extends BaseRepositoryInterface{{ interfaceExtends }}
+{
+    //
+}
