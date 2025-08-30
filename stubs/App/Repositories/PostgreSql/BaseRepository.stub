@@ -47,6 +47,16 @@ abstract class BaseRepository implements BaseRepositoryInterface
         return $query->paginate($perPage, $criteria?->columns ?? ['*'], $pageName, $page);
     }
 
+    /**
+    * @inheritDoc
+    */
+    public function chunk(int $count, callable $callback, ?QueryParameters $criteria = null): bool
+    {
+        $query = $this->applyCriteria($criteria);
+
+        return $query->chunkById($count, $callback);
+    }
+
     public function findBy(?QueryParameters $criteria = null): ?Model
     {
         $query = $this->applyCriteria($criteria);

@@ -55,7 +55,22 @@ interface BaseRepositoryInterface
      */
     public function paginate(?QueryParameters $criteria = null, int $perPage = 15, string $pageName = 'page', ?int $page = null): LengthAwarePaginator;
 
-
+    /**
+     * Kriterlere uyan kayıtları parçalar halinde işler.
+     *
+     * Bu metot, büyük veri setleriyle çalışırken hafıza (RAM) kullanımını
+     * minimumda tutmak için tasarlanmıştır. Arka planda, tutarlılığı
+     * garanti altına almak için `chunkById` mantığını kullanır. Bu sayede,
+     * işlem sırasında veri üzerinde değişiklik yapılsa bile kayıtların
+     * atlanması veya tekrar işlenmesi gibi sorunlar yaşanmaz.
+     *
+     * @param int                  $count    Her bir parçadaki kayıt sayısı (örn: 200).
+     * @param callable             $callback Her bir kayıt parçası (Collection) üzerinde
+     *                                       çalıştırılacak fonksiyon.
+     * @param QueryParameters|null $criteria Sorguyu filtrelemek için kullanılacak kriterler.
+     * @return bool                          İşlem başarıyla tamamlanırsa `true` döner.
+     */
+    public function chunk(int $count, callable $callback, ?QueryParameters $criteria = null): bool;
 
 
     /**
