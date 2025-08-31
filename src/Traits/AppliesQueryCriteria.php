@@ -4,6 +4,7 @@ namespace Fukibay\StarterPack\Traits;
 
 use Fukibay\StarterPack\Criteria\QueryParameters;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Str;
 
 trait AppliesQueryCriteria
 {
@@ -13,6 +14,26 @@ trait AppliesQueryCriteria
 
         if (!$criteria) {
             return $query;
+        }
+
+
+        if ($criteria->withoutAllScopes) {
+            $query->withoutGlobalScopes();
+        } elseif (!empty($criteria->withoutScopes)) {
+            $query->withoutGlobalScopes($criteria->withoutScopes);
+        }
+
+        if (!empty($criteria->scopes)) {
+            foreach ($criteria->scopes as $scope => $parameters) {
+                if (is_int($scope)) {
+                    $scopeName = $parameters;
+                    $params = [];
+                }else {
+                    $scopeName = $scope;
+                    $params = (array) $parameters;
+                }
+                $query->{Str::camel($scopeName)}(...$params);
+            }
         }
 
         if ($criteria->relations) {
