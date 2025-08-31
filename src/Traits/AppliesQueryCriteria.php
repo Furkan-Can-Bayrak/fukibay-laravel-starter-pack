@@ -25,16 +25,16 @@ trait AppliesQueryCriteria
 
         if (!empty($criteria->scopes)) {
             foreach ($criteria->scopes as $scope => $parameters) {
-                if (is_int($scope)) {
-                    $scopeName = $parameters;
-                    $params = [];
-                }else {
-                    $scopeName = $scope;
-                    $params = (array) $parameters;
+                if (is_int($scope)) { $scopeName = $parameters; $params = []; }
+                else { $scopeName = $scope; $params = (array)$parameters; }
+
+                $studly = Str::studly($scopeName);
+                if (method_exists($this->model, 'scope'.$studly)) {
+                    $query->{Str::camel($scopeName)}(...$params);
                 }
-                $query->{Str::camel($scopeName)}(...$params);
             }
         }
+
 
         if ($criteria->relations) {
             $query->with($criteria->relations);
@@ -54,11 +54,14 @@ trait AppliesQueryCriteria
 
         if ($criteria->orderBy) {
             foreach ($criteria->orderBy as $col => $dir) {
-                $query->orderBy((string) $col, $dir);
+                $dir = strtolower((string)$dir);
+                $dir = $dir === 'desc' ? 'desc' : 'asc'; //sql enjeksiyonu olmasın diye güvenlik eklendi
+                $query->orderBy((string)$col, $dir);
             }
         }
 
-        if ($criteria->limit) {
+
+        if (is_int($criteria->limit) && $criteria->limit > 0) {
             $query->limit($criteria->limit);
         }
 
