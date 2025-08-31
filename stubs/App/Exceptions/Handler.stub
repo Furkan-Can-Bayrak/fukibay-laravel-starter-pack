@@ -1,0 +1,62 @@
+<?php
+
+namespace {{ namespace }}\Exceptions;
+
+use Illuminatearavel-Foundation\Exceptions-Handler as ExceptionHandler;
+use Illuminate\Validation\ValidationException;
+use Throwable;
+
+class Handler extends ExceptionHandler
+{
+    /**
+     * Log'lanmayacak istisna türlerinin listesi.
+     */
+    protected $dontReport = [
+        //
+    ];
+
+    /**
+     * Form doğrulama hatalarında session'a flash'lanmayacak input'lar.
+     */
+    protected $dontFlash = [
+        'current_password',
+        'password',
+        'password_confirmation',
+    ];
+
+    /**
+     * Uygulama için istisna işleme callback'lerini kaydeder.
+     * Bu metot, gelecekte renderable'lar eklemek isterseniz diye boş olarak kalır.
+     */
+    public function register(): void
+    {
+        $this->reportable(function (Throwable $e) {
+            //
+        });
+    }
+
+    /**
+     * Bir istisnayı HTTP yanıtına dönüştürür.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \Throwable  $exception
+     * @return \Symfony\Component\HttpFoundation\Response
+     *
+     * @throws \Throwable
+     */
+    public function render($request, Throwable $exception)
+    {
+        // Eğer istek bir API isteğiyse ve istisna bir ValidationException ise,
+        // standart hata formatımızı döndür.
+        if ($request->expectsJson() && $exception instanceof ValidationException) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Gönderilen veriler geçersiz.',
+                'errors' => $exception->errors()
+            ], 422);
+        }
+
+        // Diğer tüm durumlar için, Laravel'in varsayılan hata işleme mekanizmasına devam et.
+        return parent::render($request, $exception);
+    }
+}

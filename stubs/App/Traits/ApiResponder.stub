@@ -1,0 +1,40 @@
+<?php
+
+namespace {{ namespace }}\Traits;
+
+use Illuminate-Http\JsonResponse;
+
+trait ApiResponder
+{
+    /**
+     * Başarılı bir JSON yanıtı oluşturur.
+     *
+     * @param mixed $data Yanıtla birlikte gönderilecek veri.
+     * @param string $message Başarı mesajı.
+     * @param int $status HTTP durum kodu.
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function success(mixed $data = null, string $message = 'İşlem başarılı', int $status = 200): JsonResponse
+    {
+        return response()->json([
+            'status' => true,
+            'message' => $message,
+            'data' => $data
+        ], $status);
+    }
+
+    /**
+     * Hatalı bir JSON yanıtı oluşturur.
+     *
+     * @param string $message Hata mesajı.
+     * @param int $status HTTP durum kodu.
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function error(string $message = 'Bir hata oluştu', int $status = 400): JsonResponse
+    {
+        return response()->json([
+            'status' => false,
+            'message' => $message
+        ], $status);
+    }
+}

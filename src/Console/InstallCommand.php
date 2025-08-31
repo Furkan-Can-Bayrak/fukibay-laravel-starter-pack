@@ -26,6 +26,9 @@ class InstallCommand extends Command
             'App/Repositories/Criteria/QueryParameters.stub'                 => app_path('Repositories/Criteria/QueryParameters.php'),
             'App/Repositories/PostgreSql/BaseRepository.stub'                => $baseRepoDestination, // Dinamik yol kullanıldı
             'App/Services/BaseService.stub'                                  => app_path('Services/BaseService.php'),
+            'App/Traits/ApiResponder.stub'                                   => app_path('Traits/ApiResponder.php'),
+            'App/Exceptions/Handler.stub'                                    => app_path('Exceptions/Handler.php'),
+            'App/Traits/HandlesFiles.stub' => app_path('Traits/HandlesFiles.php'),
         ];
 
         foreach ($stubs as $sourceStub => $destinationPath) {

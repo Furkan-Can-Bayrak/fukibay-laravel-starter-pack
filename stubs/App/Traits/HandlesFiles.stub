@@ -1,0 +1,141 @@
+<?php
+
+namespace App\Traits;
+
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+
+trait HandlesFiles
+{
+
+  /**
+  * Yapılandırma dosyasından varsayılan storage diskini alır.
+  */
+  protected function getStorageDisk(): string
+  {
+     return config('fukibay-starter-pack.storage_disk', 'public');
+  }
+
+    /**
+     * Yeni bir dosya oluşturur (yükler).
+     *
+     * @param UploadedFile $file
+     * @param string $directory
+     * @param string|null $customFileName
+     * @return string Kayıt edilen dosyanın yolu
+     */
+    public function storeFile(UploadedFile $file, string $directory, ?string $customFileName = null): string
+    {
+        $fileName = $this->buildFileName($file, $customFileName);
+
+        if ($customFileName) {
+            $fileName = $this->resolveFileNameConflict($directory, $fileName);
+        }
+
+        return $file->storeAs($directory, $fileName, $this->getStorageDisk());
+    }
+
+    /**
+     * Mevcut bir dosyayı siler.
+     *
+     * @param string $filePath
+     * @return bool Silme işleminin başarılı olup olmadığı
+     */
+    public function deleteFile(string $filePath): bool
+    {
+        if (Storage::disk($this->getStorageDisk())->exists($filePath)) {
+            return Storage::disk($this->getStorageDisk())->delete($filePath);
+        }
+
+        return false;
+    }
+
+    /**
+     * Mevcut dosyayı silip yerine yenisini yükler.
+     *
+     * @param UploadedFile $file
+     * @param string $directory
+     * @param string|null $oldFilePath
+     * @param string|null $customFileName
+     * @return string Yeni dosyanın yolu
+     */
+    public function updateFile(UploadedFile $file, string $directory, ?string $oldFilePath = null, ?string $customFileName = null): string
+    {
+        if (!empty($oldFilePath)) {
+            $this->deleteFile($oldFilePath);
+        }
+
+        return $this->storeFile($file, $directory, $customFileName);
+    }
+
+    /**
+     * Dosya adını üretir. Custom verilmişse onu temizleyip uzantıyla birleştirir, yoksa UUID üretir.
+     *
+     * @param UploadedFile $file
+     * @param string|null $customFileName
+     * @return string
+     */
+    protected function buildFileName(UploadedFile $file, ?string $customFileName = null): string
+    {
+        $extension = $file->getClientOriginalExtension();
+
+        if ($customFileName) {
+            return $this->sanitizeFileName($customFileName) . '.' . $extension;
+        }
+
+        return $this->generateUniqueFileName($file);
+    }
+
+    /**
+     * Dosya için benzersiz bir ad üretir (UUID + uzantı).
+     *
+     * @param UploadedFile $file
+     * @return string
+     */
+    protected function generateUniqueFileName(UploadedFile $file): string
+    {
+        return Str::uuid() . '.' . $file->getClientOriginalExtension();
+    }
+
+    /**
+     * Custom dosya adını temizler (Türkçe karakter, boşluk, özel karakter).
+     *
+     * @param string $name
+     * @return string
+     */
+    protected function sanitizeFileName(string $name): string
+    {
+        return Str::slug(pathinfo($name, PATHINFO_FILENAME));
+    }
+
+    /**
+     * Çakışmaları önlemek için dosya adını benzersiz hale getirir.
+     *
+     * @param string $directory
+     * @param string $fileName
+     * @return string
+     */
+    protected function resolveFileNameConflict(string $directory, string $fileName): string
+    {
+        $disk = Storage::disk($this->getStorageDisk());
+        $path = $directory . '/' . $fileName;
+
+        if (!$disk->exists($path)) {
+            return $fileName;
+        }
+
+        $name = pathinfo($fileName, PATHINFO_FILENAME);
+        $extension = pathinfo($fileName, PATHINFO_EXTENSION);
+        $index = 1;
+
+        do {
+            $newFileName = "{$name} ({$index}).{$extension}";
+            $path = $directory . '/' . $newFileName;
+            $index++;
+        } while ($disk->exists($path));
+
+        return $newFileName;
+    }
+
+}

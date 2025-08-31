@@ -9,4 +9,7 @@ return [
      * Komutlar bu değeri okuyarak dosyaları doğru yere oluşturur.
      */
     'repository_driver' => 'PostgreSql',
+
+
+    'storage_disk' => 'public',
 ];
