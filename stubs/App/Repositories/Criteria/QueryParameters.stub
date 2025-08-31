@@ -49,6 +49,21 @@ namespace App\Repositories\Criteria;
  * - İlişkisel "date" operatörü, `whereRelation` closure almadığı için
  *   repository içinde `whereHas` ile uygulanır.
  * - `relationFilters` opsiyoneldir; kullanmazsan dot notasyonla devam edebilirsin.
+ *
+ * ── Scope Kullanımı ────────────────────────────────────────────────────────
+ *  scopes: [
+ *    'active',                    // Modeldeki ->scopeActive() metodunu çağırır
+ *    'popular' => [100],          // ->scopePopular(100) metodunu çağırır
+ *    'publishedAfter' => ['2024-01-01'],
+ *    'publishedBetween' => ['2024-01-01', '2024-12-31'],
+ *  ]
+ *
+ *  withoutScopes: [
+ *    'active',                    // 'active' global scope'unu kaldırır
+ *    \App\Scopes\SomeScope::class // SomeScope global scope'unu kaldırır
+ *  ]
+ *
+ *  withoutAllScopes: true       // TÜM global scope'ları kaldırır
  */
 final readonly class QueryParameters
 {
@@ -86,6 +101,17 @@ final readonly class QueryParameters
      *
      * @param array<int, string>                  $columns
      *        Seçilecek kolonlar. Varsayılan: ['*']
+     *
+     * @param array<string|int, mixed>            $scopes
+     *        Uygulanacak lokal veya global scope'lar.
+     *        Örn: ['active', 'popular' => [100]]
+     *
+     * @param array<int, string|object>           $withoutScopes
+     *        Devre dışı bırakılacak belirli global scope'lar.
+     *        Örn: ['active', \App\Scopes\AncientScope::class]
+     *
+     * @param bool                                $withoutAllScopes
+     *        Eğer `true` ise, modele tanımlı TÜM global scope'ları devre dışı bırakır.
      */
     public function __construct(
         public array $filters = [],
@@ -94,5 +120,8 @@ final readonly class QueryParameters
         public array $orderBy = [],
         public ?int $limit = null,
         public array $columns = ['*'],
+        public array $scopes = [],
+        public array $withoutScopes = [],
+        public bool $withoutAllScopes = false,
     ) {}
 }
