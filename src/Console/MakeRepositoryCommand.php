@@ -4,6 +4,7 @@ namespace Fukibay\StarterPack\Console;
 
 use Illuminate\Console\GeneratorCommand;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 use Symfony\Component\Console\Input\InputOption;
 
 class MakeRepositoryCommand extends GeneratorCommand
@@ -49,33 +50,48 @@ class MakeRepositoryCommand extends GeneratorCommand
         return self::SUCCESS;
     }
 
+    /**
+     * Stub dosyasını alıp, placeholder'ları gerçek değerlerle doldurarak sınıfı oluşturur.
+     *
+     * @param  string  $name
+     * @return string
+     */
     protected function buildClass($name): string
     {
         $stub = parent::buildClass($name);
 
-        $serviceName = class_basename($name);
-        $repositoryInterface = str_replace('Service', 'RepositoryInterface', $serviceName);
-        $repositoryInterfaceFullName = $this->rootNamespace() . 'Repositories\\Contracts\\' . $repositoryInterface;
-        
-        // Değiştirilecek değerleri hazırla
+        $modelClass = $this->parseModel($this->option('model'));
+        $modelName = class_basename($modelClass);
+        $interfaceName = class_basename($name) . 'Interface';
+
         $replace = [
-            '{{ rootNamespace }}' => rtrim($this->rootNamespace(), '\\') . '\\',
-            '{{ repositoryInterfaceNamespace }}' => $repositoryInterfaceFullName,
-            '{{ repositoryInterface }}' => $repositoryInterface,
-            '{{ repositoryVariable }}' => Str::camel(str_replace('Interface', '', $repositoryInterface)),
-            '{{ useProxyTrait }}' => '',
-            '{{ proxyTrait }}' => '',
+            '{{ interface }}' => $interfaceName,
+            '{{ modelNamespace }}' => $modelClass,
+            '{{ modelName }}' => $modelName,
+            // Başlangıçta Soft Deletes ile ilgili her şeyi boş bırak
+            '{{ useSoftDeletesInterface }}' => '',
+            '{{ useHandlesSoftDeletesTrait }}' => '', // <-- YENİ
+            '{{ classImplements }}' => '',
+            '{{ useAndImplementHandlesSoftDeletes }}' => '',
         ];
 
-        // KRİTİK GELİŞTİRME: Repository arayüzü SoftDeletes'i destekliyor mu?
-        $softDeletesInterface = 'Fukibay\\StarterPack\\Repositories\\Contracts\\SoftDeletesRepositoryInterface';
-        if (class_exists($repositoryInterfaceFullName) && is_subclass_of($repositoryInterfaceFullName, $softDeletesInterface)) {
-            $replace['{{ useProxyTrait }}'] = "use Fukibay\\StarterPack\\Traits\\ProxiesSoftDeletes;";
-            $replace['{{ proxyTrait }}'] = "use ProxiesSoftDeletes;\n";
+        if ($this->needsSoftDeletes()) {
+            $this->line('<fg=cyan>Info:</> Soft Deletes algılandı, HandlesSoftDeletes traiti ve arayüzü ekleniyor.');
+
+            $softDeletesInterface = $this->rootNamespace() . 'Repositories\Contracts\SoftDeletesRepositoryInterface';
+            $handlesSoftDeletesTrait = 'Fukibay\StarterPack\Traits\HandlesSoftDeletes'; // <-- YENİ
+
+            $replace['{{ useSoftDeletesInterface }}'] = "use {$softDeletesInterface};";
+            $replace['{{ useHandlesSoftDeletesTrait }}'] = "use {$handlesSoftDeletesTrait};"; // <-- YENİ
+            $replace['{{ classImplements }}'] = ', SoftDeletesRepositoryInterface';
+            // DÜZELTME: Başındaki '\' karakterini kaldırdık.
+            $replace['{{ useAndImplementHandlesSoftDeletes }}'] = "    use HandlesSoftDeletes;\n";
         }
 
         return str_replace(
-            array_keys($replace), array_values($replace), $stub
+            array_keys($replace),
+            array_values($replace),
+            $stub
         );
     }
     
@@ -122,5 +138,26 @@ class MakeRepositoryCommand extends GeneratorCommand
             return false;
         }
         return in_array(SoftDeletes::class, class_uses_recursive($modelClass), true);
+    }
+
+    /**
+     * Verilen model adını tam ve nitelikli bir class adına çevirir.
+     * Örn: "User" -> "App\Models\User"
+     *
+     * @param  string  $model
+     * @return string
+     */
+    protected function parseModel($model)
+    {
+        // Eğer kullanıcı zaten tam yolu verdiyse (App\Models\User), dokunma.
+        if (Str::startsWith($model, $this->rootNamespace())) {
+            return $model;
+        }
+
+        // Standart model namespace'ini al (App\Models\)
+        $modelNamespace = $this->laravel->getNamespace() . 'Models\\';
+
+        // Kısa adı tam yola çevir ve döndür.
+        return $modelNamespace . str_replace('/', '\\', $model);
     }
 }

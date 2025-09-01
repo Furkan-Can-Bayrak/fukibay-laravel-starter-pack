@@ -5,6 +5,7 @@ namespace {{ namespace }};
 use {{ rootNamespace }}Repositories\Contracts\{{ interface }};
 use {{ modelNamespace }};
 {{ useSoftDeletesInterface }}
+{{ useHandlesSoftDeletesTrait }}
 
 class {{ class }} extends BaseRepository implements {{ interface }}{{ classImplements }}
 {
