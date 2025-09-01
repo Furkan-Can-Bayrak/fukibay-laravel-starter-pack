@@ -1,5 +1,3 @@
-// stubs/service.stub
-
 <?php
 
 namespace {{ namespace }};
