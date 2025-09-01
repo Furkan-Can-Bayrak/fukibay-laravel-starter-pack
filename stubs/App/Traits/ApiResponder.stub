@@ -2,7 +2,7 @@
 
 namespace {{ namespace }}\Traits;
 
-use Illuminate-Http\JsonResponse;
+use Illuminate\Http\JsonResponse;
 
 trait ApiResponder
 {
