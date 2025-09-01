@@ -1,6 +1,6 @@
 <?php
 
-namespace {{ namespace }}\Repositories\PostgreSql;
+namespace {{ namespace }}\Repositories\{{ driver }};
 
 use {{ namespace }}\Repositories\Contracts\BaseRepositoryInterface;
 use {{ namespace }}\Repositories\Criteria\QueryParameters;

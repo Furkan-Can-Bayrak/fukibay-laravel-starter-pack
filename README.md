@@ -2,51 +2,64 @@
 
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
 
-**Fukibay Laravel Starter Pack**, Repository ve Service katmanlarını kullanarak temiz mimariyle proje geliştirenler için tasarlanmış, akıllı bir kod üretim (scaffolding) paketidir. Tekrarlayan kurulum ve kodlama adımlarını otomatize ederek, doğrudan projenizin iş mantığına odaklanmanızı sağlar.
+**Fukibay Laravel Starter Pack**, Repository ve Service katmanlarını kullanarak temiz mimariyle proje geliştirenler için tasarlanmış, akıllı bir kod üretim (scaffolding) ve altyapı kurulum paketidir. Tekrarlayan kurulum ve kodlama adımlarını **tek bir interaktif komutla** otomatize ederek, doğrudan projenizin iş mantığına odaklanmanızı sağlar.
 
 ## 🎯 Felsefemiz
 
-Bu paket, "örtük" varsayımlar yerine **açık ve net** komutları tercih eder. Amacımız, geliştirme sürecinizi hızlandırırken, kodun kontrolünün daima sizde kalmasını sağlamaktır. Bu sayede, projeniz ne kadar büyürse büyüsün, ürettiğimiz kodun güvenilir ve tahmin edilebilir olmasını garanti ederiz.
+Bu paket, "örtük" varsayımlar yerine **açık ve net** komutları tercih eder. Amacımız, geliştirme sürecinizi hızlandırırken, kodun kontrolünün daima sizde kalmasını sağlamaktır. Ürettiğimiz kodun ve kurduğumuz altyapının güvenilir, esnek ve öngörülebilir olmasını garanti ederiz.
 
 ## 🚀 Temel Özellikler
 
--   **Hızlı Kurulum:** Tek komutla (`fukibay:install`) tüm temel arayüz, sınıf ve trait'leri projenize kurun.
--   **Akıllı Kod Üretimi:** `make` komutları ile saniyeler içinde Repository ve Service sınıfları oluşturun.
--   **🧠 Akıllı Soft Deletes Entegrasyonu:**
+-   **🧠 Akıllı Kurulum Sihirbazı:** Tek bir komutla (`fukibay:install`) tüm temel altyapıyı kurun. Sihirbaz, size interaktif olarak veritabanı sürücünüzü sorar ve yapılandırmanızı otomatik olarak yapar.
+-   **Akıllı Kod Üretimi:** `make` komutları ile saniyeler içinde, projenizin yapısına tam uyumlu Repository ve Service sınıfları oluşturun.
+-   **🤖 Otomatik Soft Deletes Entegrasyonu:**
     -   Repository oluştururken modelinizdeki `SoftDeletes` trait'ini **otomatik olarak algılar**.
     -   Service oluştururken, ilgili repository'nin soft-delete destekli olup olmadığını **anlar** ve gerekli `ProxiesSoftDeletes` trait'ini sınıfa **otomatik olarak ekler**.
--   **Güçlü ve Esnek Filtreleme:** `QueryParameters` DTO'su sayesinde karmaşık `where`, `relation`, `orderBy`, `limit`, `exists` gibi sorguları zincirlemeden, tek bir nesne ile temiz bir şekilde yapın.
--   **Temiz Mimari:** Repository ve Service katmanlarını standartlaştırarak kodunuzun daha okunabilir ve yönetilebilir olmasını sağlar.
--   **Dinamik Sürücü Desteği:** Repository'lerinizi `PostgreSql`, `MySql` gibi veritabanı sürücülerine özel alt klasörlerde oluşturarak projenizi düzenli tutar.
+-   **⚡ Güçlü ve Esnek Sorgulama:** `QueryParameters` DTO'su sayesinde karmaşık `where`, `relation`, `orderBy`, `limit`, `scope` ve `exists` gibi sorguları zincirlemeden, tek bir nesne ile temiz bir şekilde yapın.
+-   **🛠️ Kullanıma Hazır Yardımcılar:** Kurulumla birlikte gelen `ApiResponder`, `HandlesFiles` gibi trait'lerle API yanıtlarınızı ve dosya yönetimini anında standartlaştırın.
+-   **🛡️ Otomatik API Hata Yönetimi:** Kurulum, `ValidationException` gibi yaygın API hatalarını otomatik olarak yakalayıp standart bir JSON formatında döndüren bir `Handler.php` dosyası içerir.
+-   **Veritabanı Sürücü Desteği:** Repository'lerinizi `PostgreSql` ve `MySql` için özel alt klasörlerde oluşturarak projenizi düzenli tutar.
 
 ## 📦 Kurulum
 
-1.  Composer ile paketi projenize ekleyin:
-    ```bash
-    composer require fukibay/laravel-starter-pack
-    ```
+Paketi projenize kurmak ve çalışır hale getirmek sadece iki adımdır.
 
-2.  Paketin yapılandırma dosyasını projenizin `config` klasörüne yayınlayın.
-    ```bash
-    php artisan vendor:publish --tag="fukibay-config"
-    ```
-    Bu komut, `config/fukibay-starter-pack.php` dosyasını oluşturacaktır.
+#### Adım 1: Composer ile Paketi Yükleyin
 
-3.  Paketin temel iskelet dosyalarını (`BaseRepository`, arayüzler vb.) projenize kurun.
-    ```bash
-    php artisan fukibay:install
-    ```
-    Dosyalar, yapılandırmanıza uygun olarak `app/` dizini altına yerleştirilecektir.
+```bash
+composer require fukibay/laravel-starter-pack
+```
 
-## ⚙️ Yapılandırma
+#### Adım 2: Akıllı Kurulum Sihirbazını Çalıştırın
 
-`config/fukibay-starter-pack.php` dosyasını açarak, repository'lerinizin hangi veritabanı sürücüsü klasörü altında oluşturulacağını belirleyebilirsiniz.
+```bash
+php artisan fukibay:install
+```
+Bu komut, size hangi veritabanı sürücüsünü kullandığınızı soracak ve ardından gerekli tüm yapılandırma ve temel dosyaları projenize otomatik olarak kuracaktır.
 
-```php
-// config/fukibay-starter-pack.php
-return [
-    'repository_driver' => 'PostgreSql', // Burayı 'MySql', 'MongoDb' vb. olarak değiştirebilirsiniz.
-];
+```shell
+ ╔═══════════════════════════════════════════════╗
+ ║ Fukibay Laravel Starter Pack Kurulum Sihirbazı ║
+ ╚═══════════════════════════════════════════════╝
+
+ 1. Yapılandırma dosyası yayınlanıyor...
+
+ Repository'leriniz için bir veritabanı sürücüsü seçin.
+ Bu seçim, dosyaların hangi alt klasöre oluşturulacağını belirleyecektir.
+
+ Hangi veritabanı sürücüsünü kullanıyorsunuz?
+  PostgreSql
+  MySql
+ > 0
+
+Veritabanı sürücüsü PostgreSql olarak ayarlandı.
+
+ 2. Gerekli arayüz, trait ve temel sınıflar kopyalanıyor...
+  Yazıldı: app/Repositories/Contracts/BaseRepositoryInterface.php
+  ...
+
+ ✅ Kurulum başarıyla tamamlandı!
+ ...
 ```
 
 ## 🛠️ Kullanım Akışı
@@ -99,8 +112,7 @@ class UserService extends BaseService
     {
         parent::__construct($userRepository);
     }
-}
-```
+}```
 Bu sayede, soft-delete metotlarını kullanmak için herhangi bir ek işlem yapmanıza gerek kalmaz.
 
 ### Adım 3: Service Provider ile Bağlama
@@ -113,7 +125,7 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use App\Repositories\Contracts\UserRepositoryInterface;
-use App\Repositories\PostgreSql\UserRepository;
+use App\Repositories\PostgreSql\UserRepository; // Yapılandırmanıza göre doğru yolu seçin
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -155,7 +167,7 @@ class UserController extends Controller
             orderBy: ['created_at' => 'desc']
         );
 
-        $users = $this->userService->get($criteria);
+        $users = $this->userService->paginate($criteria);
 
         // ...
     }
@@ -165,24 +177,53 @@ class UserController extends Controller
 **Desteklenen Filtre Operatörleri:**
 `=`, `!=`, `>`, `>=`, `<`, `<=`, `like`, `date`, `in`, `between`, `null`, `not_null`, `exists` (ilişki var mı?), `not_exists` (ilişki yok mu?). Ayrıca dot notasyonu ile ilişkisel alanlarda da filtreleme yapabilirsiniz (`profile.city` => 'Ankara').
 
-### Adım 5: Soft Deletes Metotlarını Kullanma
+### Adım 5: Kurulumla Gelen Yardımcıları Kullanma
 
-`ProxiesSoftDeletes` trait'i sayesinde servis katmanı üzerinden tüm soft-delete işlemlerini rahatça yapabilirsiniz.
+`fukibay:install` komutu, işinizi kolaylaştıracak bazı trait'leri projenize kurar.
+
+#### `ApiResponder` Trait'i
+API yanıtlarınızı `app/Traits/ApiResponder.php` içindeki bu trait ile standartlaştırın.
 
 ```php
-// UserController.php
+// Örnek bir Controller'da
+use App\Traits\ApiResponder;
 
-// Hem aktif hem silinmiş kullanıcıları listele
-$allUsers = $this->userService->withTrashed();
+class UserController extends Controller
+{
+    use ApiResponder;
 
-// Sadece silinmiş kullanıcıları sayfalı olarak listele
-$trashedUsers = $this->userService->onlyTrashedPaginate();
+    public function show($id)
+    {
+        $user = $this->userService->findById($id);
+        if (!$user) {
+            return $this->error('Kullanıcı bulunamadı', 404);
+        }
+        return $this->success(new UserResource($user));
+    }
+}
+```
 
-// Silinmiş bir kullanıcıyı geri yükle
-$this->userService->restore($userId);
+#### `HandlesFiles` Trait'i
+Dosya yükleme, silme ve güncelleme işlemlerini `app/Traits/HandlesFiles.php` içindeki bu trait ile kolayca yapın.
 
-// Bir kullanıcıyı kalıcı olarak sil
-$this->userService->forceDelete($userId);
+```php
+// Örnek bir Service'te
+use App\Traits\HandlesFiles;
+
+class UserService extends BaseService
+{
+    use HandlesFiles;
+
+    public function updateUserAvatar(int $userId, UploadedFile $avatar)
+    {
+        $user = $this->findByIdOrFail($userId);
+        
+        // Eski avatarı silip yenisini yükler ve yolunu döner
+        $path = $this->updateFile($avatar, 'avatars', $user->avatar_path);
+        
+        return $this->update($userId, ['avatar_path' => $path]);
+    }
+}
 ```
 
 ## 🎯 Komutların Özeti
@@ -190,10 +231,10 @@ $this->userService->forceDelete($userId);
 | Komut | Açıklama |
 |---|---|
 | `fukibay:ping` | Paketin doğru kurulup kurulmadığını test eder. |
-| `fukibay:install` | Gerekli temel arayüz, trait ve sınıfları `app` dizinine kurar. |
+| `fukibay:install` | Gerekli temel arayüz, trait ve sınıfları interaktif sihirbaz ile `app` dizinine kurar. |
 | `fukibay:make:repository <Ad> --model=<Model>` | Yeni bir repository sınıfı ve arayüzü oluşturur. |
 | `fukibay:make:service <Ad>` | Yeni bir servis sınıfı oluşturur ve ilgili repository'yi akıllıca enjekte eder. |
 
 ---
 
-Bu paket, **Furkan Can Bayrak** tarafından geliştirilmiştir. Katkıda bulunmak isterseniz, lütfen GitHub reposu üzerinden pull request gönderin.````
+Bu paket, **Furkan Can Bayrak** tarafından geliştirilmiştir. Katkıda bulunmak isterseniz, lütfen GitHub reposu üzerinden pull request gönderin.
