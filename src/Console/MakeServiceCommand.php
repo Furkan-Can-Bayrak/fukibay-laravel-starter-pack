@@ -23,40 +23,48 @@ class MakeServiceCommand extends GeneratorCommand
     }
 
     /**
-     * Stub dosyasını alıp, placeholder'ları gerçek değerlerle doldurarak sınıfı oluşturur.
+     * Stub'u kendimiz dolduruyoruz (parent::buildClass KULLANMIYORUZ).
      */
     protected function buildClass($name): string
     {
-        $stub = parent::buildClass($name);
+        $stub = $this->files->get($this->getStub());
 
-        $serviceName = class_basename($name);
-        $repositoryInterface = str_replace('Service', 'RepositoryInterface', $serviceName);
-        $repositoryInterfaceFullName = $this->rootNamespace() . '\\Repositories\\Contracts\\' . $repositoryInterface;
+        // Sınıf adı ve namespace
+        $class = class_basename($name);
+        $namespace = $this->getNamespace($name);
+        $rootNs = rtrim($this->rootNamespace(), '\\') . '\\';
 
+        // Repository interface ismi ve FQN’i
+        $repositoryInterface = str_replace('Service', 'RepositoryInterface', $class);
+        $repositoryInterfaceFqn = $rootNs . 'Repositories\\Contracts\\' . $repositoryInterface;
+
+        // Varsayılan replace seti
         $replace = [
-            '{{ rootNamespace }}' => rtrim($this->rootNamespace(), '\\') . '\\',
-            '{{ repositoryInterfaceNamespace }}' => $repositoryInterfaceFullName,
-            '{{ repositoryInterface }}' => $repositoryInterface,
-            '{{ repositoryVariable }}' => Str::camel(str_replace('Interface', '', $repositoryInterface)),
-            // Başlangıçta Soft Deletes ile ilgili placeholder'ları boş bırakalım.
-            '{{ useProxyTrait }}' => '',
-            '{{ proxyTrait }}' => '',
+            '{{ namespace }}'              => $namespace,
+            '{{ class }}'                  => $class,
+            '{{ rootNamespace }}'          => $rootNs,
+            '{{ repositoryInterfaceUse }}' => "use {$repositoryInterfaceFqn};",
+            '{{ repositoryInterface }}'    => $repositoryInterface,
+            '{{ repositoryVariable }}'     => Str::camel(str_replace('Interface', '', $repositoryInterface)),
+            '{{ useProxyUse }}'            => '',
+            '{{ proxyTrait }}'             => '',
         ];
 
-        // AKILLI KISIM: Repository'nin Soft Deletes destekleyip desteklemediğini kontrol et.
-        $softDeletesInterface = $this->rootNamespace() . '\\Repositories\\Contracts\\SoftDeletesRepositoryInterface';
-        if (interface_exists($repositoryInterfaceFullName) && is_subclass_of($repositoryInterfaceFullName, $softDeletesInterface)) {
+        // SoftDeletes desteği algılama (opsiyonel)
+        $softDeletesInterfaceFqn = $rootNs . 'Repositories\\Contracts\\SoftDeletesRepositoryInterface';
+        $proxiesSoftDeletesTraitFqn = 'Fukibay\\StarterPack\\Traits\\ProxiesSoftDeletes';
+
+        if (interface_exists($repositoryInterfaceFqn)
+            && interface_exists($softDeletesInterfaceFqn)
+            && is_subclass_of($repositoryInterfaceFqn, $softDeletesInterfaceFqn)) {
+
             $this->line('<fg=cyan>Info:</> Soft Deletes destekli repository algılandı, ProxiesSoftDeletes traiti ekleniyor.');
 
-            $proxiesSoftDeletesTrait = 'Fukibay\StarterPack\Traits\ProxiesSoftDeletes';
-
-            $replace['{{ useProxyTrait }}'] = "use {$proxiesSoftDeletesTrait};";
-            $replace['{{ proxyTrait }}'] = "    use ProxiesSoftDeletes;\n";
+            $replace['{{ useProxyUse }}'] = "use {$proxiesSoftDeletesTraitFqn};";
+            $replace['{{ proxyTrait }}']  = "use ProxiesSoftDeletes;\n";
         }
 
-        return str_replace(
-            array_keys($replace), array_values($replace), $stub
-        );
+        return str_replace(array_keys($replace), array_values($replace), $stub);
     }
 
     protected function getOptions(): array

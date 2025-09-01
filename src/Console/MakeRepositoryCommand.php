@@ -94,21 +94,20 @@ class MakeRepositoryCommand extends GeneratorCommand
             $stub
         );
     }
-    
+
     protected function createInterface(): void
     {
         $name = $this->qualifyClass($this->getNameInput());
         $interfaceName = class_basename($name) . 'Interface';
         $interfaceNamespace = $this->rootNamespace() . 'Repositories\\Contracts';
         $interfacePath = $this->getPath($interfaceNamespace . '\\' . $interfaceName);
-        
+
         if ($this->files->exists($interfacePath) && !$this->option('force')) {
             $this->line("<fg=yellow>Arayüz zaten var:</> {$interfaceName}");
             return;
         }
 
         $this->makeDirectory($interfacePath);
-
         $stub = $this->files->get(__DIR__ . '/../../stubs/repository.interface.stub');
 
         $replace = [
@@ -121,7 +120,8 @@ class MakeRepositoryCommand extends GeneratorCommand
 
         if ($this->needsSoftDeletes()) {
             $replace['{{ useSoftDeletesInterface }}'] = "use {$this->rootNamespace()}Repositories\Contracts\SoftDeletesRepositoryInterface;";
-            $replace['{{ interfaceExtends }}'] = ' extends SoftDeletesRepositoryInterface';
+            // === DÜZELTME BURADA: 'extends' yerine ',' kullanıyoruz ===
+            $replace['{{ interfaceExtends }}'] = ', SoftDeletesRepositoryInterface';
         }
 
         $this->files->put($interfacePath, str_replace(array_keys($replace), array_values($replace), $stub));
