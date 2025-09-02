@@ -2,7 +2,7 @@
 
 namespace {{ namespace }}\Exceptions;
 
-use Illuminatearavel-Foundation\Exceptions-Handler as ExceptionHandler;
+use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Validation\ValidationException;
 use Throwable;
 
